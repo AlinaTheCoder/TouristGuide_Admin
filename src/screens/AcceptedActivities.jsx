@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import apiInstance from '../config/apiConfig';
 import PostActivity from '../components/PostActivity';
@@ -22,9 +22,13 @@ export default function AcceptedActivities() {
             const response = await apiInstance.get('/fetchAllAcceptedActivities');
             setActivities(response.data.data); // Update activities state
         } catch (error) {
-            console.error('Error fetching activities:', error);
-            setActivities([]); // Reset to empty on error
-        } finally {
+            if (!error.response) {
+              Alert.alert('Network Error', 'Check internet connection');
+            } else {
+              Alert.alert('Error', 'Failed to load activities');
+            }
+            setActivities([]);
+          } finally {
             setLoading(false); // Ensure loading is set to false
         }
     };

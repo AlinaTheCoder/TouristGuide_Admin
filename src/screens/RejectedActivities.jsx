@@ -1,6 +1,6 @@
 // RejectedActivities.js
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, FlatList, ActivityIndicator,Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import apiInstance from '../config/apiConfig';
 import PostActivity from '../components/PostActivity';
@@ -19,7 +19,11 @@ export default function RejectedActivities() {
         const response = await apiInstance.get('/fetchAllRejectedActivities');
         setActivities(response.data.data);
       } catch (error) {
-        console.error('Error fetching rejected activities:', error);
+        if (!error.response) {
+          Alert.alert('Network Error', 'Check internet connection');
+        } else {
+          Alert.alert('Error', 'Failed to load activities');
+        }
         setActivities([]);
       } finally {
         setLoading(false);

@@ -40,10 +40,14 @@ const AcceptedActivityDetails = () => {
                 } else {
                     throw new Error("Failed to fetch activity details");
                 }
-            } catch (err) {
-                console.error("Error fetching activity details:", err);
-                setError(err.message);
-            } finally {
+            } catch (error) {
+                if (!error.response) {
+                  Alert.alert('Network Error', 'Check internet connection');
+                } else {
+                  Alert.alert('Error', 'Failed to load Accepted Activity Details!');
+                }
+                setActivities([]);
+              } finally {
                 setLoading(false);
             }
         };

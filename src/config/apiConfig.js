@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Define the base URL for API calls (change to your IP and port)
-const API_BASE_URL = 'http://192.168.104.27:3000'; // Replace with your Express.js backend address
+const API_BASE_URL = 'http://192.168.10.9:3000'; // Replace with your Express.js backend address
 
 // Create an Axios instance with the base URL
 const apiInstance = axios.create({

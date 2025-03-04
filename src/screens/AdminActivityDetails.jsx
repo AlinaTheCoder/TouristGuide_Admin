@@ -44,9 +44,9 @@ const AdminActivityDetails = () => {
                     throw new Error("Failed to fetch activity details");
                 }
             } catch (err) {
-                console.error("Error fetching activity details:", err);
                 setError(err.message);
-            } finally {
+                Alert.alert('Error', 'Failed to load activity details');
+              } finally {
                 setLoading(false);
             }
         };
@@ -65,9 +65,9 @@ const AdminActivityDetails = () => {
                 Alert.alert('Error', response.data.message || 'Failed to accept activity');
             }
         } catch (error) {
-            console.error('Error accepting activity:', error);
-            Alert.alert('Error', 'An error occurred while accepting the activity. Please try again.');
-        }
+            const message = error.response?.data?.message || error.message;
+            Alert.alert('Error', message || 'Accept failed');
+          }
     };
 
     const handleRejectActivity = async () => {
@@ -82,9 +82,9 @@ const AdminActivityDetails = () => {
                 Alert.alert('Error', 'Failed to reject activity');
             }
         } catch (error) {
-            console.error('Reject activity error:', error);
-            Alert.alert('Error', 'An error occurred while rejecting the activity. Please try again.');
-        }
+            const message = error.response?.data?.message || error.message;
+            Alert.alert('Error', message || 'Reject failed');
+          }
     };
 
 

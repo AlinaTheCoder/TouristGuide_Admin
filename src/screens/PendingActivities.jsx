@@ -45,10 +45,12 @@ export default function PendingActivities() {
           setShowNoPendingRequests(true);
         }
       } catch (error) {
-        console.error('Error fetching pending activities:', error);
         setError(error);
-        setPendingActivities([]);
-        setShowNoPendingRequests(true);
+        if (!error.response) {
+          Alert.alert('Network Error', 'Failed to connect to server');
+        } else {
+          Alert.alert('Error', 'Failed to load pending activities');
+        }
       } finally {
         setIsLoading(false);
       }
@@ -167,10 +169,10 @@ export default function PendingActivities() {
                 {tabName === 'All Requests'
                   ? pendingActivities.length
                   : pendingActivities.filter(activity =>
-                      tabName === 'Newest Requests'
-                        ? new Date(activity.createdAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)
-                        : new Date(activity.createdAt) <= new Date(Date.now() - 24 * 60 * 60 * 1000)
-                    ).length}
+                    tabName === 'Newest Requests'
+                      ? new Date(activity.createdAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+                      : new Date(activity.createdAt) <= new Date(Date.now() - 24 * 60 * 60 * 1000)
+                  ).length}
                 )
               </Text>
             </TouchableOpacity>

@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Alert } from 'react';
 import {
   View,
   Text,
-  Alert,
   ScrollView,
   StyleSheet,
   KeyboardAvoidingView,
@@ -58,7 +57,19 @@ const AdminLogin = () => {
         throw new Error('Invalid response from server.');
       }
     } catch (error) {
-      Alert.alert('Error', error.response?.data?.error || error.message || 'Failed to log in. Please try again.');
+      if (!error.response) {
+        Alert.alert(
+          'Network Error',
+          'Unable to reach the server. Please check your internet connection.'
+        );
+      } else {
+        Alert.alert(
+          'Error',
+          error.response?.data?.error ||
+          error.message ||
+          'Failed to log in. Please try again.'
+        );
+      }
     } finally {
       setLoading(false);
     }
