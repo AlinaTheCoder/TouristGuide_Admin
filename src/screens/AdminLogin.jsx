@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Alert } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,20 +7,22 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-  TouchableOpacity
+  TouchableOpacity,
+  Alert // Import Alert from react-native, not react
 } from 'react-native';
 import InputField from '../components/InputField';
 import CustomButton from '../components/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import apiInstance from '../config/apiConfig';
+import PasswordField from '../components/PasswordField';
+
 const AdminLogin = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -38,25 +40,71 @@ const AdminLogin = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const debugResponse = (response) => {
+    console.log('=== API RESPONSE DEBUG ===');
+    console.log('Response status:', response.status);
+    console.log('Response headers:', JSON.stringify(response.headers));
+    console.log('Response data:', JSON.stringify(response.data));
+    console.log('Response data type:', typeof response.data);
+    console.log('Has UID?', !!response.data?.uid);
+    console.log('===========================');
+  };
+
   const handleEmailLogin = async () => {
     if (!validateFields()) return;
 
     setLoading(true);
+    console.log(`Attempting admin login with email: ${email}`);
+    
     try {
-      const response = await apiInstance.post('/adminLogin', { email: email.trim(), password: password.trim() });
+      console.log('Sending request to /adminLogin endpoint...');
+      console.log('Request payload:', { email: email.trim(), password: password.trim() });
+      
+      const response = await apiInstance.post('/adminLogin', { 
+        email: email.trim(), 
+        password: password.trim() 
+      });
+      
+      // Debug the response
+      debugResponse(response);
+      
       if (response.data?.uid) {
+        console.log('Login successful! UID found in response data');
         await AsyncStorage.setItem('uid', response.data.uid);
-        Alert.alert('Success', 'Welcom Admin!');
+        Alert.alert('Success', 'Welcome Admin!');
         setEmail('');
         setPassword('');
         setErrors({});
         navigation.navigate('AdminTabs', {
           screen: 'PendingActivities', // Specify the screen in the stack
         });
+      } else if (response.data?.token) {
+        // Fallback for alternative response structure
+        console.log('Token found but no UID directly. Attempting to use token');
+        await AsyncStorage.setItem('token', response.data.token);
+        if (response.data.uid) {
+          await AsyncStorage.setItem('uid', response.data.uid);
+        }
+        Alert.alert('Success', 'Welcome Admin!');
+        setEmail('');
+        setPassword('');
+        setErrors({});
+        navigation.navigate('AdminTabs', {
+          screen: 'PendingActivities',
+        });
       } else {
-        throw new Error('Invalid response from server.');
+        console.error('Invalid response structure:', response.data);
+        Alert.alert('Error', 'Invalid response from server. Please contact support.');
+        throw new Error('Invalid response from server. Missing uid or token.');
       }
     } catch (error) {
+      console.error('Login error:', error);
+      console.error('Error details:', JSON.stringify(error));
+      
+      if (error.response) {
+        console.error('Server response:', error.response.status, JSON.stringify(error.response.data));
+      }
+      
       if (!error.response) {
         Alert.alert(
           'Network Error',
@@ -64,16 +112,17 @@ const AdminLogin = () => {
         );
       } else {
         Alert.alert(
-          'Error',
+          'Login Failed',
           error.response?.data?.error ||
           error.message ||
-          'Failed to log in. Please try again.'
+          'Failed to log in. Please check your credentials and try again.'
         );
       }
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -93,7 +142,7 @@ const AdminLogin = () => {
         />
         {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-        <InputField
+        <PasswordField
           placeholder="Password"
           value={password}
           onChangeText={(text) => {
@@ -116,9 +165,8 @@ const AdminLogin = () => {
   );
 };
 
-
-
 const styles = StyleSheet.create({
+  // Your existing styles...
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -163,7 +211,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   signupLink: {
-    fontSize: 16, // Ensure the font size matches
+    fontSize: 16,
     color: '#FF5A5F',
     fontWeight: 'bold',
   },

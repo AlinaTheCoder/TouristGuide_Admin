@@ -11,6 +11,7 @@ import CertificateViewer from './src/screens/CertificateViewer';
 import NetInfo from '@react-native-community/netinfo';
 import ErrorBoundary from './src/components/ErrorBoundry';
 import OfflineFallback from './src/components/OfflineFallback';
+import SplashScreen from './src/screens/SplashScreen';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -35,7 +36,7 @@ export default function App() {
       <OfflineFallback onRetry={handleRetry} />
     ) : (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="AdminTabs">
+      <Stack.Navigator initialRouteName="SplashScreen">
         <Stack.Screen
           name="AdminTabs"
           component={AdminTabs}
@@ -65,6 +66,11 @@ export default function App() {
           name="CertificateViewer"
           component={CertificateViewer}
           options={{ headerShown: true, title: 'Certificate' }}
+        />
+        <Stack.Screen
+          name="SplashScreen"
+          component={SplashScreen}
+          options={{ headerShown: false}}
         />
 
       </Stack.Navigator>
