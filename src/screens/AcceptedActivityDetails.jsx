@@ -15,13 +15,17 @@ import {
 import { useNavigation, useRoute } from "@react-navigation/native";
 import apiInstance from "../config/apiConfig";
 
+
 const screenWidth = Dimensions.get("window").width;
+
 
 const AcceptedActivityDetails = () => {
     const navigation = useNavigation();
     const route = useRoute();
 
+
     const { activityId } = route.params;
+
 
     const [activityData, setActivityData] = useState(null);
     const [activeIndex, setActiveIndex] = useState(0);
@@ -29,6 +33,7 @@ const AcceptedActivityDetails = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
 
     useEffect(() => {
         const fetchActivityDetails = async () => {
@@ -52,26 +57,32 @@ const AcceptedActivityDetails = () => {
             }
         };
 
+
         fetchActivityDetails();
     }, [activityId]);
+
 
     const formatDate = (dateString) => {
         const options = { month: "short", day: "numeric", year: "numeric" };
         return new Date(dateString).toLocaleDateString("en-US", options);
     };
 
+
     const formatTime = (timeString) => {
         const options = { hour: "numeric", minute: "numeric", hour12: true };
         return new Date(timeString).toLocaleTimeString("en-US", options).toUpperCase();
     };
 
+
     const capitalizeFirstLetter = (string) => {
         return string.charAt(0).toUpperCase() + string.slice(1);
     };
 
+
     const renderItem = ({ item }) => (
         <View style={styles.imageContainer}>
             <Image source={{ uri: item }} style={styles.image} />
+            {/* Icons are now rendered here directly in the image container */}
             <View style={styles.topIconsContainer}>
                 <TouchableOpacity
                     style={styles.iconButton}
@@ -79,6 +90,15 @@ const AcceptedActivityDetails = () => {
                 >
                     <Image
                         source={require("../icons/back.png")}
+                        style={styles.iconImage}
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={() => setModalVisible(true)}
+                >
+                    <Image
+                        source={require("../icons/check.png")}
                         style={styles.iconImage}
                     />
                 </TouchableOpacity>
@@ -103,6 +123,7 @@ const AcceptedActivityDetails = () => {
         </View>
     );
 
+
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -111,6 +132,8 @@ const AcceptedActivityDetails = () => {
             </View>
         );
     }
+
+
 
 
     if (error || !activityData) {
@@ -122,6 +145,7 @@ const AcceptedActivityDetails = () => {
             </View>
         );
     }
+
 
     return (
         <View style={styles.container}>
@@ -142,6 +166,7 @@ const AcceptedActivityDetails = () => {
                         keyExtractor={(_, index) => index.toString()}
                     />
                 </View>
+
 
                 {/* Activity Details */}
                 <View>
@@ -172,6 +197,7 @@ const AcceptedActivityDetails = () => {
                                 Hosted By {activityData.hostName || "Unknown Host"}
                             </Text>
 
+
                             <Image
                                 source={{ uri: activityData.profileImage }}
                                 style={[styles.iconStyle, { borderRadius: 50 }]}
@@ -188,6 +214,7 @@ const AcceptedActivityDetails = () => {
                         </View>
                     </View>
                 </View>
+
 
                 {/* Activity Description */}
                 <View style={styles.descriptionContainer}>
@@ -210,6 +237,7 @@ const AcceptedActivityDetails = () => {
                     <View style={styles.horizontalLine} />
                 </View>
 
+
                 {/* Location Description */}
                 <View style={styles.descriptionContainer}>
                     <Text style={styles.descriptionHeader}>Location Description</Text>
@@ -230,6 +258,7 @@ const AcceptedActivityDetails = () => {
                 <View style={styles.lineContainer}>
                     <View style={styles.horizontalLine} />
                 </View>
+
 
                 {/* Personal Info */}
                 <View>
@@ -270,6 +299,7 @@ const AcceptedActivityDetails = () => {
                 </View>
             </ScrollView>
 
+
             {/* Modal for verification details */}
             <Modal
                 visible={modalVisible}
@@ -296,30 +326,13 @@ const AcceptedActivityDetails = () => {
                 </View>
             </Modal>
 
-            {/* Top icons */}
-            <View style={styles.topIconsContainer}>
-                <TouchableOpacity
-                    style={styles.iconButton}
-                    onPress={() => navigation.goBack()}
-                >
-                    <Image
-                        source={require("../icons/back.png")}
-                        style={styles.iconImage}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.iconButton}
-                    onPress={() => setModalVisible(true)}
-                >
-                    <Image
-                        source={require("../icons/check.png")}
-                        style={styles.iconImage}
-                    />
-                </TouchableOpacity>
-            </View>
+
+            {/* Removed the fixed position top icons from here */}
         </View>
     );
 };
+
+
 
 
 const styles = StyleSheet.create({
@@ -333,6 +346,7 @@ const styles = StyleSheet.create({
     },
     imageContainer: {
         width: screenWidth,
+        position: 'relative', // Ensure the container can position children
     },
     image: {
         width: screenWidth,
@@ -345,12 +359,17 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         paddingHorizontal: 20,
+        zIndex: 10, // Ensure icons are above the image
     },
     iconButton: {
         backgroundColor: "white",
         padding: 10,
         borderRadius: 25,
         elevation: 3,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
     },
     iconImage: {
         width: 20,
@@ -459,15 +478,11 @@ const styles = StyleSheet.create({
         color: "#555",
         marginVertical: 20,
     },
-
-
     infoRow: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
         marginTop: 3,
-
-
     },
     iconStyleSmall: {
         width: 33,
@@ -525,7 +540,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#FF5A5F',
     },
+    hostingContainer: {
+        // Added this style definition that was missing
+    }
 });
+
+
 
 
 export default AcceptedActivityDetails;

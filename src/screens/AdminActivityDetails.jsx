@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
     View,
@@ -11,17 +12,22 @@ import {
     ActivityIndicator,
     Alert,
 
+
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import apiInstance from "../config/apiConfig";
 
+
 const screenWidth = Dimensions.get("window").width;
+
 
 const AdminActivityDetails = () => {
     const navigation = useNavigation();
     const route = useRoute();
 
+
     const { activityId } = route.params;
+
 
     const [activityData, setActivityData] = useState(null);
     const [activeIndex, setActiveIndex] = useState(0);
@@ -30,11 +36,13 @@ const AdminActivityDetails = () => {
     const [error, setError] = useState(null);
     const [hostName, setHostName] = useState("");
 
+
     // Fetch activity details and host name
     useEffect(() => {
         const fetchActivityDetails = async () => {
             try {
                 setLoading(true);
+
 
                 // Fetch activity details from API
                 const response = await apiInstance.get(`/activityDetails/${activityId}`);
@@ -51,8 +59,10 @@ const AdminActivityDetails = () => {
             }
         };
 
+
         fetchActivityDetails();
     }, [activityId]);
+
 
     const handleAccept = async () => {
         try {
@@ -69,6 +79,7 @@ const AdminActivityDetails = () => {
             Alert.alert('Error', message || 'Accept failed');
           }
     };
+
 
     const handleRejectActivity = async () => {
         try {
@@ -88,19 +99,24 @@ const AdminActivityDetails = () => {
     };
 
 
+
+
     const formatDate = (dateString) => {
         const options = { month: "short", day: "numeric", year: "numeric" };
         return new Date(dateString).toLocaleDateString("en-US", options);
     };
+
 
     const formatTime = (timeString) => {
         const options = { hour: "numeric", minute: "numeric", hour12: true };
         return new Date(timeString).toLocaleTimeString("en-US", options).toUpperCase();
     };
 
+
     const capitalizeFirstLetter = (string) => {
         return string.charAt(0).toUpperCase() + string.slice(1);
     };
+
 
     const renderItem = ({ item }) => (
         <View>
@@ -138,6 +154,7 @@ const AdminActivityDetails = () => {
         </View>
     );
 
+
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -145,6 +162,8 @@ const AdminActivityDetails = () => {
             </View>
         );
     }
+
+
 
 
     if (error || !activityData) {
@@ -156,6 +175,7 @@ const AdminActivityDetails = () => {
             </View>
         );
     }
+
 
     return (
         <View style={styles.container}>
@@ -176,6 +196,7 @@ const AdminActivityDetails = () => {
                         keyExtractor={(_, index) => index.toString()}
                     />
                 </View>
+
 
                 {/* Activity Details */}
                 <View>
@@ -223,6 +244,7 @@ const AdminActivityDetails = () => {
                     </View>
                 </View>
 
+
                 {/* Activity Description */}
                 <View style={styles.descriptionContainer}>
                     <Text style={styles.descriptionHeader}>Activity Description</Text>
@@ -244,6 +266,7 @@ const AdminActivityDetails = () => {
                     <View style={styles.horizontalLine} />
                 </View>
 
+
                 {/* Location Description */}
                 <View style={styles.descriptionContainer}>
                     <Text style={styles.descriptionHeader}>Location Description</Text>
@@ -264,6 +287,7 @@ const AdminActivityDetails = () => {
                 <View style={styles.lineContainer}>
                     <View style={styles.horizontalLine} />
                 </View>
+
 
                 {/* Personal Info */}
                 <View>
@@ -299,10 +323,13 @@ const AdminActivityDetails = () => {
                         </TouchableOpacity>
 
 
+
+
                     </View>
                     <Text style={styles.InfoSubtitle}>CNIC: {activityData.cnic}</Text>
                     <Text style={styles.InfoSubtitle}>Account Holder Name: {activityData.accountHolderName}</Text>
                     <Text style={styles.InfoSubtitle}>IBAN No: {activityData.ibanNumber}</Text>
+
 
                 </View>
             </ScrollView>
@@ -317,11 +344,15 @@ const AdminActivityDetails = () => {
                     <Text style={styles.footerButtonText}>Accept</Text>
                 </TouchableOpacity>
 
+
             </View>
+
 
         </View>
     );
 };
+
+
 
 
 const styles = StyleSheet.create({
@@ -458,7 +489,7 @@ const styles = StyleSheet.create({
         marginTop: 15,
         backgroundColor: "white",
         paddingHorizontal: 20,
-        paddingVertical: 13,
+        paddingVertical: 1,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
@@ -475,6 +506,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 30,
         borderRadius: 8,
+        marginTop: 17
     },
     footerButtonText: {
         color: "white",
@@ -502,7 +534,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'white', // Matches your app's background
     },
 
+
 });
+
+
 
 
 export default AdminActivityDetails;

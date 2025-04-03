@@ -1,18 +1,19 @@
 // PendingActivities.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import PostPendingActivities from '../components/PostPendingActivities';
 import NoPendingRequests from '../components/NoPendingRequests';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import apiInstance from '../config/apiConfig';
 import socket from '../config/socketConfig';
+
 
 export default function PendingActivities() {
   const navigation = useNavigation();
@@ -22,41 +23,49 @@ export default function PendingActivities() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Initial HTTP fetch
-  useEffect(() => {
-    const fetchPendingActivities = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        setShowNoPendingRequests(false);
-        const pendingRequestsResponse = await apiInstance.get('/getPendingRequests');
-        console.log('Full API Response:', pendingRequestsResponse.data);
-        if (pendingRequestsResponse.data.hasPending) {
-          const formattedActivities = pendingRequestsResponse.data.data.map(activity => ({
-            id: activity.id,
-            images: activity.images,
-            activityTitle: activity.activityTitle,
-            createdAt: activity.createdAt,
-          }));
-          setPendingActivities(formattedActivities);
+
+  // Initial HTTP fetch with useFocusEffect
+  useFocusEffect(
+    useCallback(() => {
+      const fetchPendingActivities = async () => {
+        try {
+          setIsLoading(true);
+          setError(null);
           setShowNoPendingRequests(false);
-        } else {
-          setPendingActivities([]);
-          setShowNoPendingRequests(true);
+          const pendingRequestsResponse = await apiInstance.get('/getPendingRequests');
+          console.log('Full API Response:', pendingRequestsResponse.data);
+          if (pendingRequestsResponse.data.hasPending) {
+            const formattedActivities = pendingRequestsResponse.data.data.map(activity => ({
+              id: activity.id,
+              images: activity.images,
+              activityTitle: activity.activityTitle,
+              createdAt: activity.createdAt,
+            }));
+            setPendingActivities(formattedActivities);
+            setShowNoPendingRequests(false);
+          } else {
+            setPendingActivities([]);
+            setShowNoPendingRequests(true);
+          }
+        } catch (error) {
+          setError(error);
+          if (!error.response) {
+            Alert.alert('Network Error', 'Failed to connect to server');
+          } else {
+            Alert.alert('Error', 'Failed to load pending activities');
+          }
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-        setError(error);
-        if (!error.response) {
-          Alert.alert('Network Error', 'Failed to connect to server');
-        } else {
-          Alert.alert('Error', 'Failed to load pending activities');
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchPendingActivities();
-  }, []);
+      };
+      fetchPendingActivities();
+      
+      return () => {
+        // Cleanup function if needed
+      };
+    }, [])
+  );
+
 
   // Realtime updates for Pending activities
   useEffect(() => {
@@ -77,6 +86,7 @@ export default function PendingActivities() {
     };
   }, []);
 
+
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
     const formattedDate = date.toLocaleDateString('en-US', {
@@ -93,12 +103,14 @@ export default function PendingActivities() {
     return `${formattedDate} | ${formattedTime}`;
   };
 
+
   const handlePostPress = (index) => {
     const selectedActivity = pendingActivities[index];
     navigation.navigate("AdminActivityDetails", {
       activityId: selectedActivity.id,
     });
   };
+
 
   const renderActivitiesByTab = () => {
     const now = new Date();
@@ -119,14 +131,6 @@ export default function PendingActivities() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF5A5F" />
-        <Text style={styles.loadingText}>Loading Pending Activities...</Text>
-      </View>
-    );
-  }
 
   if (error) {
     return (
@@ -144,6 +148,10 @@ export default function PendingActivities() {
       </View>
     );
   }
+
+
+  const filteredActivities = renderActivitiesByTab();
+
 
   return (
     <ScrollView
@@ -179,10 +187,11 @@ export default function PendingActivities() {
           ))}
         </ScrollView>
 
-        {showNoPendingRequests ? (
+
+        {!isLoading && (showNoPendingRequests || filteredActivities.length === 0) ? (
           <NoPendingRequests activeTab={activeTab} />
         ) : (
-          renderActivitiesByTab().map((activity, index) => (
+          filteredActivities.map((activity, index) => (
             <PostPendingActivities
               key={activity.id}
               PostImages={activity.images.map(imageUrl => ({ uri: imageUrl }))}
@@ -196,6 +205,7 @@ export default function PendingActivities() {
     </ScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -257,17 +267,6 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 14,
     fontWeight: '500',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-  },
-  loadingText: {
-    marginTop: 15,
-    fontSize: 16,
-    color: '#FF5A5F',
   },
   errorContainer: {
     flex: 1,

@@ -9,16 +9,20 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+
 const { width: screenWidth } = Dimensions.get('window');
+
 
 const PostPendingActivities = ({ PostImages, PostCaption, PostTime, onPress }) => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
 
   const handleScroll = (event) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const currentIndex = Math.round(offsetX / (screenWidth - 44));
     setActiveImageIndex(currentIndex);
   };
+
 
   const safeImageSource = (image) => {
     // Handle different possible image formats
@@ -28,7 +32,9 @@ const PostPendingActivities = ({ PostImages, PostCaption, PostTime, onPress }) =
     return null;
   };
 
+
   const validImages = PostImages.map(safeImageSource).filter(Boolean);
+
 
   return (
     <View style={styles.container}>
@@ -60,6 +66,7 @@ const PostPendingActivities = ({ PostImages, PostCaption, PostTime, onPress }) =
           ))}
         </ScrollView>
 
+
         <View style={styles.dotContainer}>
           {validImages.map((_, index) => (
             <View
@@ -72,9 +79,12 @@ const PostPendingActivities = ({ PostImages, PostCaption, PostTime, onPress }) =
           ))}
         </View>
 
+
         <View style={styles.captionContainer}>
           <View style={styles.captionRow}>
             <Text style={styles.caption}>{PostCaption}</Text>
+          </View>
+          <View style={styles.captionRow}>
             <Text style={styles.dateTime}>{PostTime}</Text>
           </View>
         </View>
@@ -82,6 +92,7 @@ const PostPendingActivities = ({ PostImages, PostCaption, PostTime, onPress }) =
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -122,11 +133,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#000',
+    marginTop: 5
   },
   dateTime: {
     fontSize: 14,
     fontWeight: '400',
     color: '#555',
+    marginTop: 5
   },
   dotContainer: {
     position: 'absolute',
@@ -150,5 +163,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
 });
+
 
 export default PostPendingActivities;
