@@ -13,9 +13,67 @@ import ErrorBoundary from './src/components/ErrorBoundry';
 import OfflineFallback from './src/components/OfflineFallback';
 import SplashScreen from './src/screens/SplashScreen';
 const Stack = createNativeStackNavigator();
+import apiInstance from './src/config/apiConfig';
 
 export default function App() {
   const [isOffline, setIsOffline] = useState(false);
+
+  
+// this useEffect is for testing the backend connection
+  // This effect will run once when the component mounts
+  // and will check the backend connection
+ // In your admin App.jsx, modify your backend connection test like this:
+
+useEffect(() => {
+  // Reference to keep track if the component is mounted
+  let isMounted = true;
+  let connectionCheckInterval = null;
+
+  // Function to test backend connection
+  const testBackendConnection = async () => {
+    try {
+      const response = await apiInstance.get('/health');
+      
+      if (isMounted) {
+        console.log('Backend connection successful:', response.data);
+        
+        // Show success message on first successful connection
+        if (!global.backendConnected) {
+          global.backendConnected = true;
+          console.log('Connected to server successfully');
+        }
+      }
+    } catch (error) {
+      if (isMounted) {
+        console.error('Backend connection failed:', error);
+        global.backendConnected = false;
+        
+        // Detailed error logging
+        if (error.response) {
+          // Server responded with error status code
+          console.error('Server error:', error.response.status, error.response.data);
+        } else if (error.request) {
+          // No response received
+          console.error('Network error - no response received');
+        } else {
+          // Error setting up request
+          console.error('Request setup error:', error.message);
+        }
+      }
+    }
+  };
+
+  // Run test immediately on component mount
+  testBackendConnection();
+
+  // Cleanup function for when component unmounts
+  return () => {
+    isMounted = false;
+    if (connectionCheckInterval) {
+      clearInterval(connectionCheckInterval);
+    }
+  };
+}, []); // Empty dependency array means this runs once on mount
 
     // Network monitoring
     useEffect(() => {
